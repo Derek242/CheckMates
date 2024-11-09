@@ -2,7 +2,7 @@
 import { initializeApp } from 'firebase/app';
 import { getStorage } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
-
+//import '@react-native-firebase/storage';
 const firebaseConfig = {
   apiKey: "AIzaSyDgDPOBSQ8Vx6wNKUejBfw9YRhvfB35KIY",
   authDomain: "checkmates-a47d9.firebaseapp.com",
