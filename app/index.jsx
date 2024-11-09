@@ -10,8 +10,8 @@ import React, { useState } from 'react';
 //import '@react-native-firebase/app';  // Initialize Firebase
 
 export default function Index() {
-  //Email login
   
+  //Email login
     const [showRegister, setShowRegister] = useState(false); // State to toggle visibility
     const [isSignupPressed, setIsSignupPressed] = useState(false); // State to track if the button has been pressed
     const [isLoginPressed, setIsLoginPressed] = useState(false);
@@ -21,6 +21,8 @@ export default function Index() {
     const [Name, setName] = useState('');
     const [image,setImage] = useState(null);
 
+
+//-----------------------------
   const pickImage = async() => {
       if(Platform.OS !== 'web'){
         const status = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -39,7 +41,9 @@ export default function Index() {
           setImage(result.uri);
         }
     }
-  const loginUser = async (email, password) => {
+
+//-----------------------------
+  const loginUser = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log('User signed in:', userCredential.user);
@@ -48,8 +52,9 @@ export default function Index() {
     }
   };
 
-  // Register a new user with email and password
-const registerUser = async (email, password) => {
+//-----------------------------
+// Register a new user with email and password
+const registerUser = async () => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     console.log('User registered:', userCredential.user);
@@ -61,6 +66,8 @@ const registerUser = async (email, password) => {
     console.error('Error registering user:', (error).message);
   }
 };
+
+//-----------------------------
 // Sign out the current user
 const logoutUser = async () => {
   try {
@@ -70,36 +77,43 @@ const logoutUser = async () => {
     console.error('Error signing out:', (error).message);
   }
 };
+
+//-----------------------------
 const handleRegister = () => {
   setShowRegister(true); // Show the input fields when button is clicked
   setIsSignupPressed(true); //button will disapeaar after button pressed
 };
+
+//-----------------------------
 const handleLogin = () =>{
   setIsLoginPressed(true);
   setShowLogin(true);
-
-
-//Google Font
-const [fontsLoaded] = useFonts({
-  Megrim_400Regular})
-
-  if (!fontsLoaded) {
-    return <AppLoading />;
-  };
-  
 }
 
+//-----------------------------
+//Google Font
+const [fontsLoaded] = useFonts({
+  Megrim_400Regular 
+});
+
+if (!fontsLoaded) {
+  return <AppLoading />;
+}
+//-----------------------------
+
+
 return (
+
+  
   <View style={styles.container}>
+
+    <Image source={require('../assets/images/billLogo.png')} style={styles.image} />     
+    <Text style={styles.text}>CheckMates</Text>
+
+
     <Button title = "Pick an image from camera roll" onPress={pickImage}/>
     {image && <Image source ={{ uri:image }}style = {{width:200, height:200}}/>}
 
-    <View style = {styles.container}>
-      <Image source={require('../images/billLogo.png')} style={styles.image} />
-
-      <Text style = {styles.text}>CheckMates</Text>
-      
-    </View>
     {!isSignupPressed && !isLoginPressed && (
       <Button title="Sign up" onPress={handleRegister} color="#4CAF50" />
     )}
@@ -163,6 +177,7 @@ return (
       )}
     </View>
   );
+
 }
 
 
@@ -192,6 +207,7 @@ const styles = StyleSheet.create({
       gap: 8,
       fontFamily: 'Megrim_400Regular',
       fontSize: 50,
+      marginBottom: 16,
     },
     image: {
       width: 200,
@@ -199,6 +215,5 @@ const styles = StyleSheet.create({
     }, 
   }
 );
-
 
 

@@ -1,18 +1,24 @@
-// firebaseConfig.js
+// Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
-import { getStorage } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
-//import '@react-native-firebase/storage';
+import { getStorage } from 'firebase/storage';
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDgDPOBSQ8Vx6wNKUejBfw9YRhvfB35KIY",
-  authDomain: "checkmates-a47d9.firebaseapp.com",
-  projectId: "checkmates-a47d9",
-  storageBucket: "checkmates-a47d9.firebasestorage.app",
-  messagingSenderId: "366732803785",
-  appId: "1:366732803785:web:ccfca332ccdea6267fd718",
-  measurementId: "G-1F2K0BT729"
+  apiKey: "AIzaSyCaqfaNccJMSE5F65q3yHn2amN6LFkcGHY",
+  authDomain: "newcheckmates.firebaseapp.com",
+  projectId: "newcheckmates",
+  storageBucket: "newcheckmates.firebasestorage.app",
+  messagingSenderId: "1008138000078",
+  appId: "1:1008138000078:web:686eb967207e9bda25229f"
 };
+
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
+// Get Firebase Authentication instance
 const auth = getAuth(app);
+
 export { auth };
