@@ -77,12 +77,29 @@ const handleRegister = () => {
 const handleLogin = () =>{
   setIsLoginPressed(true);
   setShowLogin(true);
+
+
+//Google Font
+const [fontsLoaded] = useFonts({
+  Megrim_400Regular})
+
+  if (!fontsLoaded) {
+    return <AppLoading />;
+  };
+  
 }
+
 return (
   <View style={styles.container}>
     <Button title = "Pick an image from camera roll" onPress={pickImage}/>
     {image && <Image source ={{ uri:image }}style = {{width:200, height:200}}/>}
 
+    <View style = {styles.container}>
+      <Image source={require('../images/billLogo.png')} style={styles.image} />
+
+      <Text style = {styles.text}>CheckMates</Text>
+      
+    </View>
     {!isSignupPressed && !isLoginPressed && (
       <Button title="Sign up" onPress={handleRegister} color="#4CAF50" />
     )}
@@ -144,22 +161,6 @@ return (
           <Button title="Login" onPress={loginUser} />
           </>
       )}
-    </View>
-  );
-
-  //Google Font
-  const [fontsLoaded] = useFonts({
-    Megrim_400Regular: require('./path/to/Megrim-Regular.ttf'), // Make sure the path to the font file is correct
-  });
-
-  if (!fontsLoaded) {
-    return <AppLoading />;
-  }
-
-  return (
-    <View style={styles.container}>
-      <Image source={require('../images/billLogo.png')} style={styles.image} />
-      <Text style={styles.text}>CheckMates</Text>
     </View>
   );
 }
