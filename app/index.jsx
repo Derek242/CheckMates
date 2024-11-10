@@ -1,9 +1,14 @@
-import { Text, View, StyleSheet, Button,TextInput, Alert, Image } from "react-native";
+import { Text, View, StyleSheet, Button, TextInput, Alert, Image, SafeAreaViewm, Platform } from "react-native";
 import { auth } from '../scripts/firebaseConfig';
 import { useFonts, Megrim_400Regular } from '@expo-google-fonts/megrim';
 import AppLoading from 'expo-app-loading';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import * as SMS from 'expo-sms';
+import * as Notifications from 'expo-notifications';
+import * as SplashScreen from 'expo-splash-screen';
+import * as ImagePicker from 'expo-image-picker';
+
 //import 'firebase/storage';
 //import '@react-native-firebase/storage';
 //import firestore from '@react-native-firebase/firestore';
@@ -11,6 +16,7 @@ import React, { useState } from 'react';
 
 export default function Index() {
   
+SplashScreen.preventAutoHideAsync();
   //Email login
     const [showRegister, setShowRegister] = useState(false); // State to toggle visibility
     const [isSignupPressed, setIsSignupPressed] = useState(false); // State to track if the button has been pressed
@@ -19,38 +25,79 @@ export default function Index() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [Name, setName] = useState('');
-    const [image,setImage] = useState(null);
-
-
+    const [textResult, setTextResult] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [imageUri, setImageUri] = useState(null);
 //-----------------------------
-  const pickImage = async() => {
-      if(Platform.OS !== 'web'){
+  const pickImage = async() => { 
         const status = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if(status.granted === 'false'){
           alert('sorry we need permision');
           return;
         }
-      }
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.all,
+        const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [4,3],
         quality: 1,
         });
         if (!result.cancelled){
-          setImage(result.uri);
-        }
+          setImageUri(result.assets[0].uri);
+          //console.log(result.assets[0].uri);AIzaSyBO3xEWNRstYos6iMdo7iv6_ZFCxsKNs-A
+        } 
     }
 
+    const recognizeText = async () => {
+      const apiKey = 'AIzaSyBO3xEWNRstYos6iMdo7iv6_ZFCxsKNs-A';
+      const image = await fetch(imageUri);
+      const blob = await image.blob();
+      const base64Image = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+  
+      const body = JSON.stringify({
+        requests: [
+          {
+            image: { content: base64Image },
+            features: [{ type: 'TEXT_DETECTION', maxResults: 1 }],
+          },
+        ],
+      });
+  
+      const response = await fetch(
+        `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: body,
+        }
+      );
+      const result = await response.json();
+      const detectedText = result.responses[0]?.fullTextAnnotation?.text;
+      
+      console.log(detectedText);
+    };
+  
+
 //-----------------------------
-  const loginUser = async () => {
+const loginUser = async () => {
+  // if(email && password && createUserWithEmailAndPassword(auth, email, password)){
+
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log('User signed in:', userCredential.user);
+      window.location.href = '/upload';
+
     } catch (error) {
       console.error('Error signing in:', (error).message);
     }
-  };
+  
+};
+
 
 //-----------------------------
 // Register a new user with email and password
@@ -58,6 +105,7 @@ const registerUser = async () => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     console.log('User registered:', userCredential.user);
+    window.location.href = '/upload';
     //await storageRef.put(Name);
     //storeUserData('Name',Name);
     //router.push('/HomeScreen');
@@ -99,20 +147,52 @@ const [fontsLoaded] = useFonts({
 if (!fontsLoaded) {
   return <AppLoading />;
 }
-//-----------------------------
 
+//-----
+// const [number, setNumber] = useState('');
+// const [message, setMessage] = useState('');
+
+// //Checks sms capatability
+// const checkSMS = async () => {
+//   const isAvaliable = await SMS.isAvailableAsync();
+
+//   if(isAvaliable){
+//     alert('SMS is avaliable on this device');
+//   } else {
+//     alert('SMS is not avaliable on this device');
+//   }
+// };
+
+// //Message sender using native sms
+//   const sendSMS = async () => {
+//     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+//     if (status !== 'granted') {
+//       alert('Sorry, we need permission');
+//       return;
+//     }
+//   } 
 
 return (
 
-  
   <View style={styles.container}>
+{/* 
+    <View style={styles.smsButton}>
+    <Button title="Send SMS" onPress={sendSMS} />
+    </View> */}
 
     <Image source={require('../assets/images/billLogo.png')} style={styles.image} />     
     <Text style={styles.text}>CheckMates</Text>
 
 
     <Button title = "Pick an image from camera roll" onPress={pickImage}/>
-    {image && <Image source ={{ uri:image }}style = {{width:200, height:200}}/>}
+    {imageUri && <Image source ={{ uri:imageUri }}style = {{width:200, height:200}}/>}
+
+    <Button title="Recognize Text" onPress={recognizeText}/>
+    {isLoading ? <Text>Loading...</Text> : null}
+    <View style = {styles.label}>
+          <Text style = {styles.label}>Detected Text:</Text>
+          <Text style = {styles.label}>{}</Text>
+        </View>
 
     {!isSignupPressed && !isLoginPressed && (
       <Button title="Sign up" onPress={handleRegister} color="#4CAF50" />
@@ -213,7 +293,11 @@ const styles = StyleSheet.create({
       width: 200,
       height: 200,
     }, 
-  }
-);
+    smsButton: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+});
 
 
